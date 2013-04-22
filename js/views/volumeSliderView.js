@@ -11,14 +11,15 @@ define(['jQuery', 'slider'], function($, components) {
             min:parseFloat(slider.attr('data-min')),
             max:parseFloat(slider.attr('data-max')),
             value:parseFloat(slider.attr('data-value'))
-        
         });
 
+		//aendern der lautstaerke
         $(sliderComponent).on("change", function(event){
 			volume = this.getValue();
 			console.log(volume);
 			model.changeVolume(volume);
 		});
-	};
+
+	}; //ende konstruktor
 	return VolumeSlider;
 });

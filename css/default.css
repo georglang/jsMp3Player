@@ -40,3 +40,12 @@
     left: 40px;
     position:relative;
 }
+
+#timelineView{
+    margin-bottom:40px;
+}
+
+#trackInfoView{
+ margin-top: 20px;
+ background-color:yellow;
+}

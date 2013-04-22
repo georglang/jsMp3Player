@@ -28,7 +28,7 @@ require(['jQuery', 'model', 'controller',
 
 		var timelineView = new TimelineView(model, $('#timelineView'));
 		var tracklistView = new TracklistView(model, $('#tracklistView'));
-		var trackInfoView = new TrackInfoView(model, controller, $('#trackInfoView'));
+		var trackInfoView = new TrackInfoView(model, $('#trackInfoView'));
 		var playerControlsView = new PlayerControlsView(model, $('#playerControlsView'));
 
 		var volumeSlider = new VolumeSlider($('#mp3player'), model);
