@@ -12,12 +12,24 @@ define(['jQuery','views/trackInfoView'], function($) {
 		console.log('artist',model.getTrackArtist());
 		console.log('genre',model.getTrackGenre());
 		console.log('album',model.getTrackAlbum());
-		$('#trackInfo').append(
+		/*$('#trackInfo').append(
 			'<div>'+ model.getTrackTitle() +'</div>',
 			'<div>'+ model.getTrackArtist()+'</div>',
 			'<div>'+ model.getTrackGenre() +'</div>',
 			'<div>'+ model.getTrackAlbum() +'</div>'
-		);
+		);*/
+		
+		$(model).on('playactive', function(){
+			$('#trackInfo .marquee').html(
+ 			 model.getTrackArtist() +" - "+ model.getTrackTitle() +" - "+
+			 model.getTrackAlbum() +" - "+  model.getTrackGenre()
+			);
+		});
+
+
+		$(model).on('loadedmetadata', function(e){
+			console.log("äääääää", model.audio.duration);
+		});
 
 	};
 
