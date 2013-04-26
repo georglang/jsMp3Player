@@ -2,7 +2,7 @@ define(['jQuery', 'views/playerControlsView'], function($) {
 	
 	var PlayerControlsView = function (model, $element) {
 
-		$element.append('<div class"btn-group>'+ 
+		$element.append('<div id="controlButtons" class"btn-group>'+ 
 							'<button id="prev"<a class="btn" href="#"><i class="icon-step-backward"></i></a></button>'+
 						 	'<button id="play" <a class="btn" href="#"><i class="icon-play"></i></a></button>' +
 						 	'<button id="pause"<a class="btn" href="#"><i class="icon-pause"></i></a></button>'+
@@ -13,7 +13,6 @@ define(['jQuery', 'views/playerControlsView'], function($) {
 
 		
 		$("#play").on("click", function(event){
-			console.log("play Sound")
   			model.play();
 		});
 
@@ -22,17 +21,14 @@ define(['jQuery', 'views/playerControlsView'], function($) {
 		});
 
 		$("#stop").on("click", function(event){
-			console.log("stop Sound")
 			model.stop();
 		});
 
 		$("#next").on("click", function(event){
-			console.log("next Song")
 			model.nextTrack();
 		});
 
 		$("#prev").on("click", function(event){
-			console.log("next Song")
 			model.prevTrack();
 		});
 
@@ -42,8 +38,35 @@ define(['jQuery', 'views/playerControlsView'], function($) {
 			model.changeVolume(volume);
 		});
 
+		//observable
+		$(model).on('playactive', function(){
+			console.log("PLAYACTIVE");
+			$("#play > i").addClass("icon-white");
+			$("#stop > i").removeClass("icon-white");
+			$("#pause > i").removeClass("icon-white");
+		});
+
+		$(model).on('stopactive', function(){
+			console.log("STOPACTIVE");
+			$("#play > i").removeClass("icon-white");
+			$("#pause > i").removeClass("icon-white");
+			$("#stop > i").addClass("icon-white");
+		});
+
+		$(model).on('pauseactive', function(){
+			console.log("IN PAUSEACTIVE");
+			$("#pause > i").addClass("icon-white");
+			$("#play > i").removeClass("icon-white");
+			$("#stop > i").removeClass("icon-white");			
+		});
 
 
-	};
+		//aktuelle Zeit
+		$(model).on('timeupdate', function(){
+			console.log("Timeup");
+			$element.append('<span id="currentTime">'/* + model.audio.currentTime*/ +'</span>');
+		});
+
+	};//PlayerControlsView
 	return PlayerControlsView;
 });
