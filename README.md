@@ -1,4 +1,11 @@
-Interactive Multimedia Programming 2
+Javascript Mp3 Player MVC
 ===============
-von Georg Lang <glang.mmt-b2011@fh-salzburg.ac.at>.
-Im Sommersemester 2013.
+von Georg Lang
+
+Implemetation of a JS Mp3 Player without MVC-Framework.
+Songs in tracklist are dragable.
+
+
+1. clone the repo
+2. add tracks to assets/
+3. add trackinfos to assets/tracklist.json
