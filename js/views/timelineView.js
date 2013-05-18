@@ -12,52 +12,82 @@ define(['jQuery', 'slider'], function($, components) {
             max:parseFloat(slider.attr('data-max')),
             value:parseFloat(slider.attr('data-value'))
         });
-	
+
+		//wenn sich slider ändert, wird wert aktualisiert
 		$(sliderComponent).on('change',function(){
-			console.log('slider change event');
-			//console.log('currentTime', model.audio.currentTime);
-			console.log('slider value', sliderComponent.getValue());
 			model.audio.currentTime = sliderComponent.getValue();
 		});
 
-		$(model).on('loadmetadata', function(){
-			sliderComponent.setMax(model.audio.duration);
-
-		});
-
+		//slider bekommt aktuelle zeit
 		$(model).on('timeupdate', function(){
 			sliderComponent.setValue(model.audio.currentTime, false);
 		});
 
 		//gesamtspielzeit Track
 		$(model).on('durationchange', function(){
-		
-		$('#duration').html(model.audio.duration);
-		console.log("DUUUUUUURATION", model.audio.duration);
-			//$element.duration.text(trackDuration);
+			sliderComponent.setMax(model.audio.duration);
+			var currentTime = $('#currentTime');
+		    var s = parseInt(model.audio.currentTime % 60);
+		    var m = parseInt(model.audio.currentTime / 60);
+
+		    if (s < 10 && m > 10) {
+		        currentTime.html(m + ':0' + s);
+		    }		    
+		    else if(s > 10 && m < 10){
+		        currentTime.html('0' + m + ':' + s);
+		    }
+		    else if(s < 10 && m < 10){
+		        currentTime.html('0' + m + ':0' + s);
+		    }
+		    else {
+		        currentTime.html(m + ':' + s);
+		    }
 		});
 
 		//verbleibende Zeit
-		$(model).on('timeupdate',function(){
-/*
-			 var timeleft = Math.round( model.audio.duration - model.audio.currentTime );
-			 hour = Math.floor( model.audio.duration / 3600);
-			 minute = Math.floor((model.audio.duration%3600) / 60);
-			 second = Math.floor(model.audio.duration%60);
-*/		
+		$(model).on('timeupdate', function(){
+			console.log('msg')
 
+			var currentTime = $('#currentTime');
+		    var s = parseInt(model.audio.currentTime % 60);
+		    var m = parseInt(model.audio.currentTime / 60);
 
-			var remainingTime = Math.round((model.audio.duration - model.audio.currentTime)*100)/100;
-			$('#timeChange').html(remainingTime);
-			
-			var currentTime = Math.round(model.audio.currentTime*100)/100;
-			$('#duration').html(currentTime);
+		    if (s < 10 && m > 10) {
+		        currentTime.html(m + ':0' + s+'  /  ');
+		    }		    
+		    else if(s > 10 && m < 10){
+		        currentTime.html('0' + m + ':' + s+ '  /  ');
+		    }
+		    else if(s < 10 && m < 10){
+		        currentTime.html('0' + m + ':0' + s+ '  /  ');
+		    }
+		    else {
+		        currentTime.html(m + ':' + s+'  ');
+		    }
+
+		    var remainingTime = $('#remaningTime');
+		    var s = parseInt((model.audio.duration -  model.audio.currentTime) % 60);
+		    var m = parseInt((model.audio.duration -  model.audio.currentTime) / 60);
+		    if(!isNaN(s) && !isNaN(m) ){
+		    	console.log('Iiiiiiiiiiiii');
+			    if (s < 10 && m > 10) {
+			        remainingTime.html('    -' +m + ':0' + s);
+			    }		    
+			    else if(s > 10 && m < 10){
+			        remainingTime.html('    -' +'0' + m + ':' + s);
+			    }
+			    else if(s < 10 && m < 10){
+			        remainingTime.html('    -' +'0' + m + ':0' + s);
+			    }
+			    else {
+			       remainingTime.html('  /  -' +m + ':' + s);
+			    }
+			}
 		});
 
-		
-			 
-
-
+		$(model).on('changetrack', function(e){
+			$('#currentTime').html("00:00");
+		});
 
 	};
 	return TimelineView;

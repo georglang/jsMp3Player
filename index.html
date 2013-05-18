@@ -10,17 +10,35 @@
 </head>
 <body>
 <div id="mp3player">
-    <div id="playerControlsView"></div>
-    <div id="timelineView"></div>
-    <div id="tracklistView">
-    	<div id="tracklist"></div>
-    </div>
     <div id="trackInfoView">
-        <div id="trackInfo"></div>
+        <div id="trackInfo">
+            <div class="marquee"></div>
+        </div>
+    </div>
+    <div id="tracklistView">
+        <div id="tracklist"></div>
     </div>
 
+    <div id="timelineView"></div>
+        <div id="timeWrapper">
+        <div id="remaningTime"></div>
+        <div id="currentTime"></div>
+        <div style="clear:both;"></div>
+    </div>
+
+    
+
+    <div id="controlElements">
+        <div id="playerControlsView"></div>
+        <div id="volumeSliderView"></div>
+        <div style="clear:both;"></div>
+    </div>
 </div>
 
-<script data-main="js/main.js" src="vendor/requireJs.js"></script>
+<script data-main="js/main-built.js" src="vendor/requireJs.js"></script>
+<script src="js/handlebar.js"></script>
+<script>
+
+</script>
 </body>
 </html>

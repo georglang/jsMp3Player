@@ -72,7 +72,7 @@ define(['jQuery'], function($) {
 	    }
 		
 		
-		HSlider.prototype.setValue = function(val, isDragged){
+		HSlider.prototype.setValue = function(val, triggerChange){
 			if(val < this.min || val > this.max) //limits the value
 				return;
 			
@@ -81,7 +81,7 @@ define(['jQuery'], function($) {
 
 	        this.value = val;
 	       // console.log(this.value);
-	 		this.changeThumbPosition();
+	 		this.changeThumbPosition(triggerChange);
 
 		}
 		
@@ -107,14 +107,15 @@ define(['jQuery'], function($) {
 	                return;
 
 	        this.max = max;
-	        console.log(this.max);
 			this.changeThumbPosition();
 	    }
 		
 		
-		HSlider.prototype.changeThumbPosition = function(){
+		HSlider.prototype.changeThumbPosition = function(triggerChange){
 			this.thumb.css('left', this.valueToPosition(this.value));
-	        $(this).trigger('change');
+	        if (triggerChange !== false) {
+	        	$(this).trigger('change');
+	        }
 		}
 		
 		
@@ -140,9 +141,8 @@ define(['jQuery'], function($) {
 	                // click on the track
 	                this.dx = this.thumbWidth / 2;
 	                var position = Math.max(0,Math.min(this.trackWidth - this.thumbWidth, e.pageX - this.dx - this.trackLeft));
+	              	this.setValue(this.positionToValue(position),false); //false, da setValue zwei parameter  (position,isDragged) erwartet	
 	              	this.animateThumb(position); //animation of the thumb
-								  
-	                this.setValue(this.positionToValue(position),false); //false, da setValue zwei parameter  (position,isDragged) erwartet	
 	            }
 
 	            this.thumb.addClass('down'); // thumb wird die Klasse down zugewiesen, d.h bei drücken ändert sich thumb auf rot
@@ -152,7 +152,7 @@ define(['jQuery'], function($) {
 				$(document).on('mousemove', function(e){
 	                var position = Math.max(0,Math.min(sliderElem.trackWidth - sliderElem.thumbWidth, e.pageX - sliderElem.dx - sliderElem.trackLeft));
 	                sliderElem.thumb.css('left', position);
-	                sliderElem.setValue(sliderElem.positionToValue(position),false);
+	                sliderElem.setValue(sliderElem.positionToValue(position));
 	            });
 				
 				$(document).on('mouseup.sliderDragging', function () {

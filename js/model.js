@@ -21,72 +21,81 @@ define(['jQuery'], function($) {
 
 		this.tracks;
 		this.currentTrackId = 0;
-		this.isPlaying = false;
-		var that = this;
 
+		this.tracklistOrder = [];
+		this.tracklistOrderIndex = 0;
+
+		var that = this;
 
 		this.audio.addEventListener('play', function(e) {
 			$(that).trigger(that.events.PLAYACTIVE);
+			$(that).trigger(that.events.CHANGETRACK);	
 		});
 
 		this.audio.addEventListener('ended', function(e) {
 			that.nextTrack();
-			console.log('ended');
-		});
-
-		/*this.audio.addEventListener('pause', function(e) {
-			$(that).trigger(that.events.PAUSEACTIVE);
-		});*/
-
-		this.audio.addEventListener('loadedmetadata', function(e) {
-			console.log('loadedmetadata');
-			console.log('event',e);
-			$(that).trigger(that.events.LOADMETADATA);
-
 		});
 
 		this.audio.addEventListener('timeupdate', function(e) {
 			$(that).trigger(that.events.TIMEUPDATE);
-			//console.log('timeupdate: ' + that.audio.currentTime); 
 		});
 
 		this.audio.addEventListener('durationchange', function(e) {
-			console.log('durationchange: ' + that.audio.duration);
-			$(that).trigger(that.events.DURATIONCHANGE)
+			$(that).trigger(that.events.DURATIONCHANGE);
 		});
-
 	};//PlayerModel
 
+
+	//einlesen des json files und id hinzufuegen 
 	PlayerModel.prototype.getTracklist = function(){
 		var that = this;
 		$.ajaxSetup({ async: false });
         
-        //einlesen des json files und id hinzufuegen
        	$.getJSON('assets/tracklist.json', function(data) {
 		 	that.tracks = data.tracks; //objektArray tracks
 		 	
 		 	for(var i=0;i<that.tracks.length; i++){
 		 		that.tracks[i].id = i;
-		 	}	
-		});		 			
+		 		that.tracklistOrder[i] = i; //id wird in gleicher ordnung eingefügt
+		 	}
+		 	that.setCurrentTrackIdIndexOrder(0);
+
+		});	
 	}
-
-	
-
 
 	PlayerModel.prototype.setCurrentTrackId = function(currentTrackId){
 		this.currentTrackId = currentTrackId;
+		this.tracklistOrderIndex = this.tracklistOrder.indexOf(currentTrackId); //indexOf durchsucht array nach index
 		this.setTrackSource();
 	}
 
+	//setzen des Indexes, des aktuellen tracks
+	PlayerModel.prototype.setCurrentTrackIdIndexOrder = function(currentTracklistOrderIndex) {
+		this.tracklistOrderIndex = currentTracklistOrderIndex;
+		this.currentTrackId = this.tracklistOrder[currentTracklistOrderIndex]; //fragt aktuelle id ab
+		
+		this.setTrackSource();
+	}
+ 
 	PlayerModel.prototype.getCurrentTrackId = function(){
-		console.log(this.currentTrackId);
 		return this.currentTrackId;
+	}
+
+	PlayerModel.prototype.moveTrackInList = function(fromIndex, toIndex){
+		// schneidet element an position fromIndex aus und speichert Element, dass ausgeschnitten wurde
+		var cutOutElement = this.tracklistOrder.splice(fromIndex, 1)[0];
+		
+		// fuegt ausgeschnittens element an position toIndex ein
+		this.tracklistOrder.splice(toIndex, 0, cutOutElement);
+
+		// wenn der aktuell abgespielte Track bewegt wurde, muss dieser tracklistOrderIndex im Model aktualisiert werden.2
+		if (fromIndex == this.tracklistOrderIndex){
+			this.tracklistOrderIndex = toIndex;
+		}
 	}
 
 	PlayerModel.prototype.setTrackSource = function(){
 		this.audio.src = this.tracks[this.getCurrentTrackId()].url;
-		console.log("Aktuelle URL: ", this.tracks[this.getCurrentTrackId()].url);
 		this.audio.autoplay = true;
 		$(this).trigger(this.events.CHANGETRACK);	
 	}
@@ -95,8 +104,16 @@ define(['jQuery'], function($) {
 		return this.tracks[this.getCurrentTrackId()].title;
 	}
 
+	PlayerModel.prototype.getTrackTitleById = function(id){
+		return this.tracks[id].title;
+	}
+
 	PlayerModel.prototype.getTrackArtist = function(){
 		return this.tracks[this.getCurrentTrackId()].artist;
+	}
+
+	PlayerModel.prototype.getTrackTitle = function(){
+		return this.tracks[this.getCurrentTrackId()].title;
 	}
 
 	PlayerModel.prototype.getTrackGenre = function(){
@@ -118,32 +135,40 @@ define(['jQuery'], function($) {
 	}
 
 	PlayerModel.prototype.stop = function(){
-        this.audio.stop();
+        this.audio.pause();
+    	this.audio.currentTime = 0.0;
         $(this).trigger(this.events.STOPACTIVE);
 	}
 
 	PlayerModel.prototype.nextTrack = function(){
-		var currentTrackId = this.getCurrentTrackId();
-		currentTrackId++;
-		currentTrackId = currentTrackId % this.tracks.length; //tracks fangen nach Tracklistende wieder von vorne an
-		this.setCurrentTrackId(currentTrackId);	
+		var lastTrack = false;
+		var currentTracklistOrderIndex = this.tracklistOrderIndex;
+		currentTracklistOrderIndex++;
+		
+		//setzen von lastTrack um nach letztem track zu stoppen
+		if(currentTracklistOrderIndex >= this.tracks.length){
+			lastTrack = true;
+		}
+
+		currentTracklistOrderIndex = currentTracklistOrderIndex % this.tracks.length; //tracks fangen nach Tracklistende wieder von vorne an
+		this.setCurrentTrackIdIndexOrder(currentTracklistOrderIndex);
+
+		if(lastTrack){ //stopt nach letztem track
+			this.stop();
+		}		
 	}
 
 	PlayerModel.prototype.prevTrack = function(){
-		var currentTrackId = this.getCurrentTrackId();
-		currentTrackId--;
-		while(currentTrackId < 0) //wenn unter 0 wird listenlaenge aufaddiert
-			currentTrackId += this.tracks.length;
-		this.setCurrentTrackId(currentTrackId);	
+		var currentTracklistOrderIndex = this.tracklistOrderIndex;
+		currentTracklistOrderIndex--;
+		
+		while(currentTracklistOrderIndex < 0) //wenn unter 0 wird listenlaenge aufaddiert
+			currentTracklistOrderIndex += this.tracks.length;
+		this.setCurrentTrackIdIndexOrder(currentTracklistOrderIndex);
 	}
 
 	PlayerModel.prototype.changeVolume = function(volume){
 		this.audio.volume = volume;
-	}
-
-	HTMLAudioElement.prototype.stop = function(){
-    	this.pause();
-    	this.currentTime = 0.0;
 	}
 
 	return PlayerModel;

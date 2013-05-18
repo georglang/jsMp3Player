@@ -34,11 +34,10 @@ define(['jQuery', 'views/playerControlsView'], function($) {
 
 
 		$("#volumeSlider").on("change", function(event){
-			alert("VALUE CHANGED");
 			model.changeVolume(volume);
 		});
 
-		//observable
+		//umschalten der schaltflächen anzeigen
 		$(model).on('playactive', function(){
 			console.log("PLAYACTIVE");
 			$("#play > i").addClass("icon-white");
@@ -58,13 +57,6 @@ define(['jQuery', 'views/playerControlsView'], function($) {
 			$("#pause > i").addClass("icon-white");
 			$("#play > i").removeClass("icon-white");
 			$("#stop > i").removeClass("icon-white");			
-		});
-
-
-		//aktuelle Zeit
-		$(model).on('timeupdate', function(){
-			console.log("Timeup");
-			$element.append('<span id="currentTime">'/* + model.audio.currentTime*/ +'</span>');
 		});
 
 	};//PlayerControlsView

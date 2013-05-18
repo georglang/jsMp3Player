@@ -3,7 +3,7 @@ define(['jQuery', 'slider'], function($, components) {
 	var VolumeSlider = function ($element, model) {
 		this.$element = $element;
 
-		this.$element.append('<div id="volumeSlider" class="slider" data-value="1" data-min="0" data-max="1"></div>');
+		this.$element.append('<img class="speaker" src="assets/img/speaker.png"> <div id="volumeSlider" class="slider volume" data-value="1" data-min="0" data-max="1"></div>');
 		
         var slider = $('#volumeSlider');
 		var sliderComponent = new components.HSlider({
@@ -20,6 +20,6 @@ define(['jQuery', 'slider'], function($, components) {
 			model.changeVolume(volume);
 		});
 
-	}; //ende konstruktor
+	}; //VolumeSlider
 	return VolumeSlider;
 });
