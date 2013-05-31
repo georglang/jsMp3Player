@@ -1,6 +1,6 @@
-Javascript Mp3 Player MVC
+Javascript Mp3 Player
 ===============
-von Georg Lang
+by Georg Lang
 
 Implemetation of a JS Mp3 Player without MVC-Framework.
 Songs in tracklist are dragable.
