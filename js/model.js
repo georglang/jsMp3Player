@@ -1,175 +1,166 @@
-define(['jQuery'], function($) {
-	
-	var PlayerModel = function () {
-		this._timezoneOffset = 0;
+define(['jQuery'], function ($) {
 
-		this.events = {
-			DURATIONCHANGE : 'durationchange',
-			LOADMETADATA : 'loadmetadata', 
-			TIMEUPDATE : 'timeupdate',
-			PLAYACTIVE : 'playactive', 
-			PAUSEACTIVE : 'pauseactive',
-			STOPACTIVE : 'stopactive',
-			CHANGETRACK : 'changetrack'
-		};
-	
-		this.audio = new Audio();
-		this.audio.src = 'assets/track1.mp3';
-		this.audio.autoplay = false;
-		this.audio.controls = true;
-		this.audio.preload = 'none'; 
+  var PlayerModel = function () {
+    this._timezoneOffset = 0;
 
-		this.tracks;
-		this.currentTrackId = 0;
+    this.events = {
+      DURATIONCHANGE: 'durationchange',
+      LOADMETADATA: 'loadmetadata',
+      TIMEUPDATE: 'timeupdate',
+      PLAYACTIVE: 'playactive',
+      PAUSEACTIVE: 'pauseactive',
+      STOPACTIVE: 'stopactive',
+      CHANGETRACK: 'changetrack'
+    };
 
-		this.tracklistOrder = [];
-		this.tracklistOrderIndex = 0;
+    this.audio = new Audio();
+    this.audio.src = 'assets/track1.mp3';
+    this.audio.autoplay = false;
+    this.audio.controls = true;
+    this.audio.preload = 'none';
 
-		var that = this;
+    this.tracks = null;
+    this.currentTrackId = 0;
 
-		this.audio.addEventListener('play', function(e) {
-			$(that).trigger(that.events.PLAYACTIVE);
-			$(that).trigger(that.events.CHANGETRACK);	
-		});
+    this.tracklistOrder = [];
+    this.tracklistOrderIndex = 0;
 
-		this.audio.addEventListener('ended', function(e) {
-			that.nextTrack();
-		});
+    var that = this;
 
-		this.audio.addEventListener('timeupdate', function(e) {
-			$(that).trigger(that.events.TIMEUPDATE);
-		});
+    this.audio.addEventListener('play', function () {
+      $(that).trigger(that.events.PLAYACTIVE);
+      $(that).trigger(that.events.CHANGETRACK);
+    });
 
-		this.audio.addEventListener('durationchange', function(e) {
-			$(that).trigger(that.events.DURATIONCHANGE);
-		});
-	};//PlayerModel
+    this.audio.addEventListener('ended', function () {
+      that.nextTrack();
+    });
 
+    this.audio.addEventListener('timeupdate', function () {
+      $(that).trigger(that.events.TIMEUPDATE);
+    });
 
-	//einlesen des json files und id hinzufuegen 
-	PlayerModel.prototype.getTracklist = function(){
-		var that = this;
-		$.ajaxSetup({ async: false });
-        
-       	$.getJSON('assets/tracklist.json', function(data) {
-		 	that.tracks = data.tracks; //objektArray tracks
-		 	
-		 	for(var i=0;i<that.tracks.length; i++){
-		 		that.tracks[i].id = i;
-		 		that.tracklistOrder[i] = i; //id wird in gleicher ordnung eingefügt
-		 	}
-		 	that.setCurrentTrackIdIndexOrder(0);
+    this.audio.addEventListener('durationchange', function () {
+      $(that).trigger(that.events.DURATIONCHANGE);
+    });
+  };
 
-		});	
-	}
+  PlayerModel.prototype.getTracklist = function () {
+    var that = this;
+    $.ajaxSetup({ async: false });
 
-	PlayerModel.prototype.setCurrentTrackId = function(currentTrackId){
-		this.currentTrackId = currentTrackId;
-		this.tracklistOrderIndex = this.tracklistOrder.indexOf(currentTrackId); //indexOf durchsucht array nach index
-		this.setTrackSource();
-	}
+    $.getJSON('assets/tracklist.json', function (data) {
+      that.tracks = data.tracks;
 
-	//setzen des Indexes, des aktuellen tracks
-	PlayerModel.prototype.setCurrentTrackIdIndexOrder = function(currentTracklistOrderIndex) {
-		this.tracklistOrderIndex = currentTracklistOrderIndex;
-		this.currentTrackId = this.tracklistOrder[currentTracklistOrderIndex]; //fragt aktuelle id ab
-		
-		this.setTrackSource();
-	}
- 
-	PlayerModel.prototype.getCurrentTrackId = function(){
-		return this.currentTrackId;
-	}
+      for (var i = 0; i < that.tracks.length; i++) {
+        that.tracks[i].id = i;
+        that.tracklistOrder[i] = i;
+      }
+      that.setCurrentTrackIdIndexOrder(0);
 
-	PlayerModel.prototype.moveTrackInList = function(fromIndex, toIndex){
-		// schneidet element an position fromIndex aus und speichert Element, dass ausgeschnitten wurde
-		var cutOutElement = this.tracklistOrder.splice(fromIndex, 1)[0];
-		
-		// fuegt ausgeschnittens element an position toIndex ein
-		this.tracklistOrder.splice(toIndex, 0, cutOutElement);
+    });
+  };
 
-		// wenn der aktuell abgespielte Track bewegt wurde, muss dieser tracklistOrderIndex im Model aktualisiert werden.2
-		if (fromIndex == this.tracklistOrderIndex){
-			this.tracklistOrderIndex = toIndex;
-		}
-	}
+  PlayerModel.prototype.setCurrentTrackId = function (currentTrackId) {
+    this.currentTrackId = currentTrackId;
+    this.tracklistOrderIndex = this.tracklistOrder.indexOf(currentTrackId);
+    this.setTrackSource();
+  };
 
-	PlayerModel.prototype.setTrackSource = function(){
-		this.audio.src = this.tracks[this.getCurrentTrackId()].url;
-		this.audio.autoplay = true;
-		$(this).trigger(this.events.CHANGETRACK);	
-	}
+  PlayerModel.prototype.setCurrentTrackIdIndexOrder = function (currentTracklistOrderIndex) {
+    this.tracklistOrderIndex = currentTracklistOrderIndex;
+    this.currentTrackId = this.tracklistOrder[currentTracklistOrderIndex];
 
-	PlayerModel.prototype.getTrackTitle = function(){
-		return this.tracks[this.getCurrentTrackId()].title;
-	}
+    this.setTrackSource();
+  };
 
-	PlayerModel.prototype.getTrackTitleById = function(id){
-		return this.tracks[id].title;
-	}
+  PlayerModel.prototype.getCurrentTrackId = function () {
+    return this.currentTrackId;
+  };
 
-	PlayerModel.prototype.getTrackArtist = function(){
-		return this.tracks[this.getCurrentTrackId()].artist;
-	}
+  PlayerModel.prototype.moveTrackInList = function (fromIndex, toIndex) {
+    var cutOutElement = this.tracklistOrder.splice(fromIndex, 1)[0];
+    this.tracklistOrder.splice(toIndex, 0, cutOutElement);
 
-	PlayerModel.prototype.getTrackTitle = function(){
-		return this.tracks[this.getCurrentTrackId()].title;
-	}
+    if (fromIndex == this.tracklistOrderIndex) {
+      this.tracklistOrderIndex = toIndex;
+    }
+  };
 
-	PlayerModel.prototype.getTrackGenre = function(){
-		return this.tracks[this.getCurrentTrackId()].genre;
-	}
+  PlayerModel.prototype.setTrackSource = function () {
+    this.audio.src = this.tracks[this.getCurrentTrackId()].url;
+    this.audio.autoplay = true;
+    $(this).trigger(this.events.CHANGETRACK);
+  };
 
-	PlayerModel.prototype.getTrackAlbum = function(){
-		return this.tracks[this.getCurrentTrackId()].artist;
-	}
+  PlayerModel.prototype.getTrackTitle = function () {
+    return this.tracks[this.getCurrentTrackId()].title;
+  };
 
-	PlayerModel.prototype.play = function(){
-	        this.audio.play();
-        	//$(this).trigger(this.events.PLAYACTIVE);
-	}
+  PlayerModel.prototype.getTrackTitleById = function (id) {
+    return this.tracks[id].title;
+  };
 
-	PlayerModel.prototype.pause = function(){
-        this.audio.pause();
-        $(this).trigger(this.events.PAUSEACTIVE);
-	}
+  PlayerModel.prototype.getTrackArtist = function () {
+    return this.tracks[this.getCurrentTrackId()].artist;
+  };
 
-	PlayerModel.prototype.stop = function(){
-        this.audio.pause();
-    	this.audio.currentTime = 0.0;
-        $(this).trigger(this.events.STOPACTIVE);
-	}
+  PlayerModel.prototype.getTrackTitle = function () {
+    return this.tracks[this.getCurrentTrackId()].title;
+  };
 
-	PlayerModel.prototype.nextTrack = function(){
-		var lastTrack = false;
-		var currentTracklistOrderIndex = this.tracklistOrderIndex;
-		currentTracklistOrderIndex++;
-		
-		//setzen von lastTrack um nach letztem track zu stoppen
-		if(currentTracklistOrderIndex >= this.tracks.length){
-			lastTrack = true;
-		}
+  PlayerModel.prototype.getTrackGenre = function () {
+    return this.tracks[this.getCurrentTrackId()].genre;
+  };
 
-		currentTracklistOrderIndex = currentTracklistOrderIndex % this.tracks.length; //tracks fangen nach Tracklistende wieder von vorne an
-		this.setCurrentTrackIdIndexOrder(currentTracklistOrderIndex);
+  PlayerModel.prototype.getTrackAlbum = function () {
+    return this.tracks[this.getCurrentTrackId()].artist;
+  };
 
-		if(lastTrack){ //stopt nach letztem track
-			this.stop();
-		}		
-	}
+  PlayerModel.prototype.play = function () {
+    this.audio.play();
+  };
 
-	PlayerModel.prototype.prevTrack = function(){
-		var currentTracklistOrderIndex = this.tracklistOrderIndex;
-		currentTracklistOrderIndex--;
-		
-		while(currentTracklistOrderIndex < 0) //wenn unter 0 wird listenlaenge aufaddiert
-			currentTracklistOrderIndex += this.tracks.length;
-		this.setCurrentTrackIdIndexOrder(currentTracklistOrderIndex);
-	}
+  PlayerModel.prototype.pause = function () {
+    this.audio.pause();
+    $(this).trigger(this.events.PAUSEACTIVE);
+  };
 
-	PlayerModel.prototype.changeVolume = function(volume){
-		this.audio.volume = volume;
-	}
+  PlayerModel.prototype.stop = function () {
+    this.audio.pause();
+    this.audio.currentTime = 0.0;
+    $(this).trigger(this.events.STOPACTIVE);
+  };
 
-	return PlayerModel;
+  PlayerModel.prototype.nextTrack = function () {
+    var lastTrack = false;
+    var currentTracklistOrderIndex = this.tracklistOrderIndex;
+    currentTracklistOrderIndex++;
+
+    if (currentTracklistOrderIndex >= this.tracks.length) {
+      lastTrack = true;
+    }
+
+    currentTracklistOrderIndex = currentTracklistOrderIndex % this.tracks.length;
+    this.setCurrentTrackIdIndexOrder(currentTracklistOrderIndex);
+
+    if (lastTrack) {
+      this.stop();
+    }
+  };
+
+  PlayerModel.prototype.prevTrack = function () {
+    var currentTracklistOrderIndex = this.tracklistOrderIndex;
+    currentTracklistOrderIndex--;
+
+    while (currentTracklistOrderIndex < 0)
+      currentTracklistOrderIndex += this.tracks.length;
+    this.setCurrentTrackIdIndexOrder(currentTracklistOrderIndex);
+  };
+
+  PlayerModel.prototype.changeVolume = function (volume) {
+    this.audio.volume = volume;
+  };
+
+  return PlayerModel;
 });
