@@ -1,7 +1,7 @@
-define([], function() {
-	
-	var PlayerController = function (model) {
-		this.model = model;
-	};
-	return PlayerController;
+define([], function () {
+
+  var PlayerController = function (model) {
+    this.model = model;
+  };
+  return PlayerController;
 });
